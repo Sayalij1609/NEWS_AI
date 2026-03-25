@@ -1,8 +1,22 @@
 # NewsAI — Intelligent News Agent
 
+<div align="center">
+
+![NewsAI](https://img.shields.io/badge/NewsAI-Intelligent%20News%20Agent-1A2340?style=for-the-badge&logo=rss&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-llama3.2-FF6B35?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
 **An AI-powered news summarization and explanation agent that runs 100% locally.**
 Fetch real articles → Analyze with a local LLM → Get summaries, explanations, sentiment and key points.
 
+[Features](#-features) · [Architecture](#-architecture) · [Installation](#-installation) · [Usage](#-usage) · [API Reference](#-api-reference) · [Project Structure](#-project-structure)
+
+</div>
+
+---
 
 ## ✨ Features
 
@@ -23,9 +37,10 @@ Fetch real articles → Analyze with a local LLM → Get summaries, explanations
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Browser (User)                          │
-│              http://localhost:5000                               
+│              http://localhost:5000                               │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │  HTTP POST /search ▼
+                           │  HTTP POST /search
+                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              Flask Frontend  (port 5000)                        │
 │         frontend/app.py  ·  templates/  ·  static/              │
@@ -42,7 +57,7 @@ Fetch real articles → Analyze with a local LLM → Get summaries, explanations
            ▼                            ▼
 ┌──────────────────┐         ┌──────────────────────────────────┐
 │  News Sources    │         │   Ollama  (port 11434)           │
-│  ─────────────  │          │   Model: llama3.2 (2 GB)         │
+│  ─────────────  │         │   Model: llama3.2 (2 GB)         │
 │  RSS Feeds       │         │   Runs 100% locally              │
 │  · BBC News      │         │   No internet required for AI    │
 │  · Reuters       │         └──────────────────────────────────┘
@@ -94,57 +109,73 @@ Before you begin, make sure you have:
 - **Git** (optional, for cloning)
 
 Check your Python version:
-
+```bash
 python --version
-
+```
 
 Check Ollama is installed:
-
+```bash
 ollama --version
+```
 
+---
 
 ## 🚀 Installation
 
 ### Step 1 — Clone the repository
 
+```bash
 git clone https://github.com/yourusername/newsai.git
 cd newsai
-
+```
 
 Or download and extract the ZIP, then navigate into the folder.
 
-
+---
 
 ### Step 2 — Pull the AI model
 
+```bash
 ollama pull llama3.2
-
+```
 
 > This downloads the llama3.2 model (~2 GB). Only needs to be done once.
 
 Verify the model is available:
-
+```bash
 ollama list
-
+```
 
 You should see `llama3.2` in the output.
 
+---
 
 ### Step 3 — Install Python dependencies
 
-pip install fastapi uvicorn flask requests feedparser beautifulsoup4 python-dotenv pydantic
+```bash
+pip install -r requirements.txt
+```
 
+Or install manually:
+```bash
+pip install fastapi uvicorn flask requests feedparser beautifulsoup4 python-dotenv pydantic
+```
+
+---
 
 ### Step 4 — Configure environment (optional)
 
 Create a `.env` file inside the `backend/` folder:
 
+```bash
 # backend/.env
 GNEWS_API_KEY=your_gnews_api_key_here
-
+```
 
 > **GNews API key is optional.** If not provided, the app automatically falls back to free RSS feeds.
 > Get a free key (100 requests/day) at [https://gnews.io](https://gnews.io)
+
+---
 
 ## ▶️ Running the Project
 
@@ -152,9 +183,10 @@ You need **two terminals** open simultaneously.
 
 ### Terminal 1 — Start the FastAPI Backend
 
+```bash
 cd backend
 uvicorn main:app --reload --port 8000
-
+```
 
 Expected output:
 ```
@@ -168,48 +200,58 @@ INFO:     Uvicorn running on http://127.0.0.1:8000
 
 ### Terminal 2 — Start the Flask Frontend
 
+```bash
 cd frontend
 python app.py
-
+```
 
 Expected output:
-
+```
  * Running on http://127.0.0.1:5000
  * Debug mode: on
+```
 
+---
 
 ### Open in browser
 
+```
 http://localhost:5000
+```
 
+---
 
 ## 🧪 Verify Everything is Working
 
 ### Check FastAPI is running
-
+```bash
 curl http://localhost:8000/
-
+```
 Expected: `{"message": "News AI Agent is running"}`
 
 ### Check Ollama is running
+```bash
 ollama list
-
+```
 Should show `llama3.2` in the list.
 
 ### Test Ollama manually
-
+```bash
 ollama run llama3.2 "Summarize this in one line: AI is transforming industries rapidly."
-
+```
 
 ### Test the full API manually
-
+```bash
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -d '{"topic": "Artificial Intelligence", "num_articles": 2}'
+```
 
+---
 
 ## 📁 Project Structure
 
+```
 newsai/
 │
 ├── backend/
@@ -412,8 +454,7 @@ pydantic==2.8.2
 ```bash
 # ── SETUP ──────────────────────────────────────────
 ollama pull llama3.2                    # Download AI model (once)
-pip install fastapi uvicorn flask requests feedparser beautifulsoup4 python-dotenv pydantic
-         # Install Python packages
+pip install -r requirements.txt         # Install Python packages
 
 # ── RUN ────────────────────────────────────────────
 cd backend && uvicorn main:app --reload --port 8000    # Terminal 1
