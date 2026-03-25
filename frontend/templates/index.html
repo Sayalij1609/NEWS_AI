@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NewsAI — Intelligent News Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <script>
+    (function(){
+      var t = localStorage.getItem('pulse_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ═══════════ NAVBAR ═══════════ -->
+  <header class="navbar">
+    <div class="nav-inner">
+
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="8" height="8" rx="1.5" fill="white"/>
+            <rect x="13" y="3" width="8" height="8" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="3" y="13" width="8" height="8" rx="1.5" fill="white" opacity="0.6"/>
+            <rect x="13" y="13" width="8" height="8" rx="1.5" fill="white" opacity="0.25"/>
+          </svg>
+        </div>
+        <span class="brand-name">NewsAI</span>
+        <span class="brand-tagline">Intelligent News Agent</span>
+      </div>
+
+      <nav class="nav-links">
+        <a class="nav-link active" href="#">Feed</a>
+        <a class="nav-link" href="#" onclick="openHistory();return false;">History</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">AI Ready</span>
+        </div>
+        <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="history-btn" onclick="openHistory()" title="Search history">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="history-count" id="historyCount" style="display:none">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════ HISTORY DRAWER ═══════════ -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeHistory()"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Recent searches
+      </div>
+      <button class="drawer-close" onclick="closeHistory()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="historyList"></div>
+    <div class="drawer-footer">
+      <button class="btn-ghost-danger" onclick="clearHistory()">Clear all history</button>
+    </div>
+  </aside>
+
+  <!-- ═══════════ APP SHELL ═══════════ -->
+  <div class="shell">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+
+        <div class="sidebar-section">
+          <p class="sidebar-label">What do you want to explore?</p>
+          <div class="search-field" id="searchField">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input
+              type="text"
+              id="topicInput"
+              class="search-input"
+              placeholder="e.g. Space exploration…"
+              autocomplete="off"
+            />
+          </div>
+          <button class="btn-primary" id="searchBtn" onclick="runSearch()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Analyze topic
+          </button>
+        </div>
+
+        <div class="sidebar-section">
+          <p class="sidebar-label">Number of articles</p>
+          <div class="counter">
+            <button class="counter-btn" onclick="adjustCount(-1)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="counter-val" id="countVal">5</span>
+            <button class="counter-btn" onclick="adjustCount(1)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <p class="sidebar-label">Data source</p>
+          <div class="segmented">
+            <button class="seg active" id="srcRss" onclick="setSource('rss')">Live feeds</button>
+            <button class="seg" id="srcGnews" onclick="setSource('gnews')">News API</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <p class="sidebar-label">Browse by topic</p>
+          <div class="topic-list">
+            <button class="topic-item" onclick="quickSearch('Artificial Intelligence')">
+              <span class="topic-dot t-blue"></span>Artificial Intelligence
+            </button>
+            <button class="topic-item" onclick="quickSearch('India economy')">
+              <span class="topic-dot t-green"></span>India economy
+            </button>
+            <button class="topic-item" onclick="quickSearch('Climate change')">
+              <span class="topic-dot t-teal"></span>Climate change
+            </button>
+            <button class="topic-item" onclick="quickSearch('Space exploration')">
+              <span class="topic-dot t-purple"></span>Space exploration
+            </button>
+            <button class="topic-item" onclick="quickSearch('Cybersecurity')">
+              <span class="topic-dot t-red"></span>Cybersecurity
+            </button>
+            <button class="topic-item" onclick="quickSearch('Electric vehicles')">
+              <span class="topic-dot t-amber"></span>Electric vehicles
+            </button>
+            <button class="topic-item" onclick="quickSearch('Global markets')">
+              <span class="topic-dot t-blue"></span>Global markets
+            </button>
+            <button class="topic-item" onclick="quickSearch('Healthcare')">
+              <span class="topic-dot t-green"></span>Healthcare
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
+
+      <!-- Status -->
+      <div class="alert hidden" id="alert">
+        <span class="alert-spinner" id="alertSpinner"></span>
+        <span id="alertText"></span>
+      </div>
+
+      <!-- Default: Discover -->
+      <section id="discoverSection">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title">Discover</h2>
+            <p class="content-sub">Popular topics to get you started</p>
+          </div>
+        </div>
+        <div class="discover-grid" id="discoverGrid"></div>
+      </section>
+
+      <!-- Results -->
+      <section id="resultsSection" style="display:none">
+        <div class="content-header">
+          <div class="content-header-left">
+            <h2 class="content-title" id="resultsHeading"></h2>
+            <span class="results-badge" id="resultsBadge"></span>
+          </div>
+          <div class="content-header-right">
+            <label class="sort-label">Sort by</label>
+            <select class="sort-select" onchange="sortBy(this.value)">
+              <option value="default">Relevance</option>
+              <option value="positive">Positive sentiment</option>
+              <option value="negative">Negative sentiment</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+        </div>
+        <div class="articles-grid" id="articlesGrid"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="footer">
+    <span class="footer-brand">NewsAI</span>
+    <span class="footer-sep">·</span>
+    <span>Intelligent news agent · Fully private · No data leaves your device</span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
